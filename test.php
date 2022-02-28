@@ -9,8 +9,11 @@
 			"type"=> "token"
 		],
 		"routes" => [
+			'/^\//i' => [
+				'url'=>'https://konukos.nat.cu'
+			],
 			// http://localhost/index.php/api/v2/access/login
-			'/^\/api\/v2\/.*/i' => [
+			'/\/api\/v2\/.*/i' => [
 				'host' => 'tropipay-dev.herokuapp.com',
 				'scheme'=> 'https',
 				'method' => 'POST',
@@ -41,6 +44,6 @@
 	
 	$server->start();
 	
-		
+	
 	//die($server->isAPIKey("Bearer MjAyMjIwMjJGZWJGZWJNb25Nb246OGNmMjQxNWQyYzM1NmE2ZjRhMzE1YTc3MWMzYTgzZTA=") ? 'SI' : 'NO' ); 
 	//die($server->getAPIKey()); // MjAyMjIwMjJGZWJGZWJNb25Nb246OGNmMjQxNWQyYzM1NmE2ZjRhMzE1YTc3MWMzYTgzZTA=

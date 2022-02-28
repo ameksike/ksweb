@@ -101,13 +101,13 @@ class KsProxyReverse
 		}
 		return [];
 	}
-	
+		
 	protected function getTargetHost($url) {
 		return $this->http->decodeURL($url, PHP_URL_HOST);
 	}
 	
 	protected function getTargetUrl($target){
-		$target['path'] = isset($target['path']) ? $target['path'] : $_SERVER['PATH_INFO'];
+		$target['path'] = isset($target['path']) ? $target['path'] : (isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : '/' );
 		return $this->http->encodeURL($target);
 	}
 	
@@ -148,7 +148,8 @@ class KsProxyReverse
 	public function sendHeaders($headers, $indexed=true){
 		$avoid = array(
 			"content-encoding",
-			"transfer-encoding"
+			"transfer-encoding",
+			"content-length"
 		);
 		foreach($headers as $name => $value){
 			if(!in_array(strtolower($name), $avoid )){
