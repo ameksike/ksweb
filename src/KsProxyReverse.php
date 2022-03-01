@@ -73,7 +73,7 @@ class KsProxyReverse
 		}
 		$type = !isset($this->cfg['security']['type']) ? 'token' : $this->cfg['security']['type'];
 		if($type == 'token'){
-			$header = !isset($this->cfg['security']['header']) ? 'auth-ks' : $this->cfg['security']['header'];
+			$header = !isset($this->cfg['security']['header']) ? 'Auth-Ks' : $this->cfg['security']['header'];
 			if(empty($headers) || !isset($headers[$header])) {
 				return false;
 			}
@@ -122,7 +122,6 @@ class KsProxyReverse
 	public function process(){
 		$target = $this->getRoute($_SERVER);
 		$headers = $this->http->getRequestHeaders();
-		
 		unset($headers['Content-Length'], $headers['Accept-Encoding']);
 			
 		if(!$this->auth($headers)){
@@ -163,7 +162,7 @@ class KsProxyReverse
 	}
 	
 	public function respond($data){
-		die(is_string($data) ? $data : json_encode($data));
+		die(is_string($data) ? $data : ($data !== null ? json_encode($data) : ''));
 	}
 	
 	public function start(){
@@ -176,8 +175,13 @@ class KsProxyReverse
 			if(isset($res['headers'])){
 				$this->sendHeaders($res['headers']);
 			}
-			$this->sendCode($res['code']);
-			$this->respond($res['data']);
+			if(isset($res['data'])){
+				$this->sendCode($res['code']);
+				$this->respond($res['data']);
+			}else{
+				$this->sendCode(500);
+				$this->respond($res['error']);
+			}
 		}
 		catch(Exception $e) {
 			$this->sendCode(500);

@@ -1,11 +1,11 @@
 <?php
 	include './src/KsProxyReverse.php';
-	
+
 	$server = new KsProxyReverse();
 	$server->configure([
 		"security" => [
 			"secret"=> "ewtertw44t34",
-			"header"=> "auth-ks",
+			"header"=> "Auth-Ks",
 			"type"=> "token"
 		],
 		"routes" => [
@@ -14,7 +14,7 @@
 			],
 			// http://localhost/index.php/api/v2/access/login
 			'/\/api\/v2\/.*/i' => [
-				'host' => 'tropipay-dev.herokuapp.com',
+				'host' => 'tropipay-dev.herokuapp-1.com',
 				'scheme'=> 'https',
 				'method' => 'POST',
 				'action' => '/.*/i',
@@ -43,7 +43,3 @@
 	]);
 	
 	$server->start();
-	
-	
-	//die($server->isAPIKey("Bearer MjAyMjIwMjJGZWJGZWJNb25Nb246OGNmMjQxNWQyYzM1NmE2ZjRhMzE1YTc3MWMzYTgzZTA=") ? 'SI' : 'NO' ); 
-	//die($server->getAPIKey()); // MjAyMjIwMjJGZWJGZWJNb25Nb246OGNmMjQxNWQyYzM1NmE2ZjRhMzE1YTc3MWMzYTgzZTA=
