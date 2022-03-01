@@ -7,20 +7,40 @@
  * @copyright  	Copyright (c) 2020-2050
  * @license    	GPL
  * @version    	1.0
- * @require 	KsURL
+ * @require 	KsURL, KsSec
  */
 class KsProxyReverse 
 {
+
 	public function __construct(){
-		if (!class_exists('KsURL')) {
-			require_once(__DIR__.'/KsURL.php');
-		}
+		$this->load('KsURL');
+		$this->load('KsSec');
 		$this->http = new KsURL();
+		$this->sec = new KsSec();
 		$this->cfg = array( 'routes' => array() );
 	}
+
+	/**
+	 * @description load class if not exists
+	 * @param {STRING} name
+	 */
+	public function load($name) {
+		if (!class_exists($name)) {
+			require_once(__DIR__."/$name.php");
+		}
+	}
 	
+	/**
+	 * @description configure server
+	 * @param {STRING} name
+	 */
 	public function configure($options){
 		$this->cfg = $options;
+		$this->sec->configure(
+			isset($this->cfg['security']) && isset($this->cfg['security']['secret']) ? 
+			$this->cfg['security']['secret'] : 
+			'ksike'
+		);
 		return $this;
 	}
 	
@@ -31,14 +51,7 @@ class KsProxyReverse
 	 * @return {STRING}
 	 */
 	public function getAPIKey($code=null, $secret=null){
-		try{
-			$code = $code ? $code : date('YYMMDD');
-			$secret = $secret ? $secret : ( isset($this->cfg['security']) && isset($this->cfg['security']['secret']) ? $this->cfg['security']['secret'] : 'ksike') ;
-			return base64_encode($code.":".md5($code."-".$secret));
-		}
-		catch(Exception $e) {
-			return '';
-		}
+		return $this->sec->generate($code, $secret);
 	}
 	
 	/**
@@ -48,18 +61,7 @@ class KsProxyReverse
 	 * @return {BOOLEAN}
 	 */
 	public function isAPIKey($token, $secret=null){
-		try{
-			$secret = $secret ? $secret : ( isset($this->cfg['security']) && isset($this->cfg['security']['secret']) ? $this->cfg['security']['secret'] : 'ksike') ;
-			$token = explode(' ', $token, 2);
-			if(!isset($token[1])) return false;
-			$token = base64_decode($token[1]);
-			$token = explode(':', $token, 2);
-			if(!isset($token[1])) return false;
-			return $token[1] == md5($token[0]."-".$secret);
-		}
-		catch(Exception $e) {
-			return false;
-		}
+		return $this->sec->verify($token, $secret);
 	}
 	
 	/**

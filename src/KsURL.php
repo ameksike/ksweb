@@ -171,14 +171,14 @@ class KsURL
 	/**
 	 * @description get url info 'http://username:password@hostname:9090/path?arg=value#anchor'
 	 * @return [
-		◦ scheme 	PHP_URL_SCHEME - e.g. http 
-		◦ host  	PHP_URL_HOST
-		◦ port  	PHP_URL_PORT
-		◦ user  	PHP_URL_USER
-		◦ pass  	PHP_URL_PASS
-		◦ path  	PHP_URL_PATH
-		◦ query 	PHP_URL_QUERY	 - after the question mark ?  
-		◦ fragment 	PHP_URL_FRAGMENT - after the hashmark # 
+	 *    scheme 	PHP_URL_SCHEME - e.g. http 
+	 *    host  	PHP_URL_HOST
+	 *    port  	PHP_URL_PORT
+	 *    user  	PHP_URL_USER
+	 *    pass  	PHP_URL_PASS
+	 *    path  	PHP_URL_PATH
+	 *    query 	PHP_URL_QUERY	 - after the question mark ?  
+	 *    fragment 	PHP_URL_FRAGMENT - after the hashmark # 
 	 * ]
 	 */
 	public function decodeURL($url, $key=false) {
@@ -188,14 +188,14 @@ class KsURL
 	/**
 	 * @description get url string 'http://username:password@hostname:9090/path?arg=value#anchor'
 	 * @param [
-		◦ scheme 	PHP_URL_SCHEME - e.g. http 
-		◦ host  	PHP_URL_HOST
-		◦ port  	PHP_URL_PORT
-		◦ user  	PHP_URL_USER
-		◦ pass  	PHP_URL_PASS
-		◦ path  	PHP_URL_PATH
-		◦ query 	PHP_URL_QUERY	 - after the question mark ?  
-		◦ fragment 	PHP_URL_FRAGMENT - after the hashmark # 
+	 *    scheme 	PHP_URL_SCHEME - e.g. http 
+	 *    host  	PHP_URL_HOST
+	 *    port  	PHP_URL_PORT
+	 *    user  	PHP_URL_USER
+	 *    pass  	PHP_URL_PASS
+	 *    path  	PHP_URL_PATH
+	 *    query 	PHP_URL_QUERY	 - after the question mark ?  
+	 *    fragment 	PHP_URL_FRAGMENT - after the hashmark # 
 	 * ]
 	 * @return {STRING}
 	 */
