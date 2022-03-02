@@ -16,7 +16,12 @@ class KsURL
 			'light'=> array('GET', 'DELETE')
 		);
 	}
-	
+
+	/**
+	 * @description get if is heavy method or not
+	 * @param {STRING} method
+	 * @return {BOOLEAN} 
+	 */
 	protected function isHeavyMethod($method){
 		return in_array(strtoupper($method), $this->method['heavy'] );
 	}
