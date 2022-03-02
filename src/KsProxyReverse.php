@@ -1,5 +1,6 @@
 <?php
 /**
+ * @description Proxy Reverse
  * @author		Antonio Membrides Espinosa
  * @email		tonykssa@gmail.com
  * @package    	Ksike Server
@@ -103,16 +104,32 @@ class KsProxyReverse
 		}
 		return [];
 	}
-		
+
+	/**
+	 * @description get target host 
+	 * @param {STRING} url 
+	 * @return {STRING}
+	 */
 	protected function getTargetHost($url) {
 		return $this->http->decodeURL($url, PHP_URL_HOST);
 	}
-	
+
+	/**
+	 * @description get target url 
+	 * @param {ARRAY} target 
+	 * @return {STRING}
+	 */
 	protected function getTargetUrl($target){
 		$target['path'] = isset($target['path']) ? $target['path'] : (isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : '/' );
 		return $this->http->encodeURL($target);
 	}
-	
+
+	/**
+	 * @description get target headers from indexed list 
+	 * @param {STRING} url 
+	 * @param {ARRAY} headers 
+	 * @return {ARRAY}
+	 */
 	protected function getTargetHeaders($url, $headers=null){
 		$request_headers = $headers ? $headers : $this->http->getRequestHeaders();
 		$request_headers['Host'] = $this->getTargetHost($url);
@@ -121,6 +138,10 @@ class KsProxyReverse
 		return $this->http->getRequestHeadersFormatted($request_headers);
 	}
 
+	/**
+	 * @description process request
+	 * @return {OBJECT}
+	 */
 	public function process(){
 		$target = $this->getRoute($_SERVER);
 		$headers = $this->http->getRequestHeaders();
@@ -141,11 +162,17 @@ class KsProxyReverse
 		$target['headers'] = $this->getTargetHeaders($target['url'], $headers);
 		return $this->http->send($target);
 	}
-	
+
+	/**
+	 * @description set response code
+	 */
 	public function sendCode($code){
 		http_response_code($code);
 	}	
 
+	/**
+	 * @description set response headers
+	 */
 	public function sendHeaders($headers, $indexed=true){
 		$avoid = array(
 			"content-encoding",
@@ -162,17 +189,33 @@ class KsProxyReverse
 			}
 		}
 	}
-	
+
+	/**
+	 * @description send user information
+	 */
 	public function respond($data){
-		die(is_string($data) ? $data : ($data !== null ? json_encode($data) : ''));
+		$out = is_string($data) ? $data : ($data !== null ? json_encode($data) : '');
+		echo $out;
+		if(isset($this->cfg['mode'])){
+			if($this->cfg['mode'] == 'hard'){
+				die();
+			}
+		}
 	}
 	
+	/**
+	 * @description start service listener
+	 */
 	public function start(){
 		try {
 			$res = $this->process();
 			if(empty($res)) {
 				$this->sendCode(404);
-				$this->respond('{ "error": { "message": "Not found" } }');
+				$this->respond(json_encode(array(
+					'error' => array(
+						"message" => "Not found"
+					)
+				)));
 			}
 			if(isset($res['headers'])){
 				$this->sendHeaders($res['headers']);
@@ -188,10 +231,10 @@ class KsProxyReverse
 		catch(Exception $e) {
 			$this->sendCode(500);
 			$this->respond(json_encode(array(
-					'error' => array(
-						"message" => $e->getMessage(), 
-						"code"=> $e->getCode()
-					)
+				'error' => array(
+					"message" => $e->getMessage(), 
+					"code"=> $e->getCode()
+				)
 			)));
 		}
 	}
