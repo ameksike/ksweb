@@ -94,7 +94,7 @@ class KsProxyReverse
 		$server = $server ? $server : $this->srv;
 		$url = isset($server['PATH_INFO']) ? $server['PATH_INFO'] : '/';
 		foreach ($routes as $pattern => $route) {
-			$route['method'] = isset($route['method']) ? $route['method'] : 'GET';
+			$route['method'] = isset($route['method']) ? $route['method'] : $server['REQUEST_METHOD'];
 			$route['action'] = isset($route['action']) ? $route['action'] : '/'.$route['method'] . '/';
 			$pattern = isset($route['pattern']) ? $route['pattern'] : $pattern;
 			if(preg_match($pattern, $url) && preg_match($route['action'], $server['REQUEST_METHOD'])){
