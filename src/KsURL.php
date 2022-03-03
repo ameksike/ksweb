@@ -72,6 +72,7 @@ class KsURL
 			$opt['param'] = isset($opt['param']) ? $this->getOptParam($opt['param']) : '';
 			$opt['timeout'] = isset($opt['timeout']) ? $opt['timeout'] : 30;
 			$opt['maxredirs'] = isset($opt['maxredirs']) ? $opt['maxredirs'] : 10;
+			$opt['param'] = empty($opt['query']) ? $opt['param'] : (!empty($opt['param']) ? $opt['param'].'&'.$opt['query'] : $opt['query']);
 			
 			//... add settings
 			$options = array(
