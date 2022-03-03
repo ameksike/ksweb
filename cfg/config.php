@@ -1,6 +1,6 @@
 <?php
 //... options
-$config["mode"] = "hard";
+//$config["mode"] = "flex";  // strict|flex
 
 //... security
 $config["security"]["secret"] = "ewtertw44t34";
@@ -8,7 +8,6 @@ $config["security"]["header"] = "Auth-Ks";
 $config["security"]["type"] = "token";
 
 //... router 
-$config["routes"]['/^\//i']["url"] = "https://konukos.nat.cu";
 $config["routes"]['/^\/api\/v2\/.*/i'] = [
 	'host' => 'tropipay-dev.herokuapp-1.com',
 	'scheme'=> 'https',

@@ -12,13 +12,31 @@
  */
 class KsProxyReverse 
 {
-
+	/**
+	 * @description initialize server
+	 */
 	public function __construct(){
 		$this->load('KsURL');
 		$this->load('KsSec');
 		$this->http = new KsURL();
 		$this->sec = new KsSec();
 		$this->cfg = array( 'routes' => array() );
+		$this->srv = $_SERVER;
+	}
+
+	/**
+	 * @description generate logs
+	 */
+	public function setLog($target=null){
+		$path = __DIR__ . '/../' . (isset($this->cfg['log']) ? $this->cfg['log'] : 'log/');
+		$name = date("ymd");
+		$data["date"] = date("y-m-d H:i:s");
+		$data["host"] = $this->srv["REMOTE_ADDR"];//  $this->srv["HTTP_HOST"];
+		$data["agent"] = $this->srv["HTTP_USER_AGENT"];
+		$data["method"] = $this->srv["REQUEST_METHOD"];
+		$data["path"] = $this->srv["REQUEST_URI"];
+		$data["target"] =  $target;
+		file_put_contents("$path/$name.log", json_encode($data).',', FILE_APPEND | LOCK_EX);
 	}
 
 	/**
@@ -44,25 +62,13 @@ class KsProxyReverse
 		);
 		return $this;
 	}
-	
+
 	/**
-	 * @description generate API key base64(code : md5( code - secret ) )
-	 * @param {STRING} code
-	 * @param {STRING} secret
-	 * @return {STRING}
-	 */
-	public function getAPIKey($code=null, $secret=null){
-		return $this->sec->generate($code, $secret);
-	}
-	
-	/**
-	 * @description generate API key base64
-	 * @param {STRING} code
-	 * @param {STRING} secret
+	 * @description get if server is in strict mode
 	 * @return {BOOLEAN}
 	 */
-	public function isAPIKey($token, $secret=null){
-		return $this->sec->verify($token, $secret);
+	public function istrict(){
+		return isset($this->cfg['mode']) ? ($this->cfg['mode'] == 'strict' ? true : false) : false;
 	}
 	
 	/**
@@ -80,7 +86,7 @@ class KsProxyReverse
 			if(empty($headers) || !isset($headers[$header])) {
 				return false;
 			}
-			return $this->isAPIKey($headers[$header]);
+			return $this->sec->verify($headers[$header]);
 		}
 		return true;
 	}
@@ -92,7 +98,7 @@ class KsProxyReverse
 	 */
 	public function getRoute($server=null){
 		$routes = $this->cfg['routes'];
-		$server = $server ? $server : $_SERVER;
+		$server = $server ? $server : $this->srv;
 		$url = isset($server['PATH_INFO']) ? $server['PATH_INFO'] : '/';
 		foreach ($routes as $pattern => $route) {
 			$route['method'] = isset($route['method']) ? $route['method'] : 'GET';
@@ -144,10 +150,15 @@ class KsProxyReverse
 	 */
 	public function process(){
 		$target = $this->getRoute($_SERVER);
+		if(empty($target)){
+			$this->setLog();
+			return [];
+		}
 		$headers = $this->http->getRequestHeaders();
 		unset($headers['Content-Length'], $headers['Accept-Encoding']);
-			
-		if(!$this->auth($headers)){
+		$target['auth'] = $this->auth($headers);
+		if(!$target['auth']){
+			$this->setLog($target);
 			return [];
 		}
 		if(!$target) return [];
@@ -157,9 +168,10 @@ class KsProxyReverse
 		}else {
 			$target['data'] = $this->http->getRequestBody();
 		}
-		
 		$target['url'] = $this->getTargetUrl($target);
 		$target['headers'] = $this->getTargetHeaders($target['url'], $headers);
+		$target['query'] = $this->srv['QUERY_STRING'];
+		$this->setLog($target);
 		return $this->http->send($target);
 	}
 
@@ -196,10 +208,8 @@ class KsProxyReverse
 	public function respond($data){
 		$out = is_string($data) ? $data : ($data !== null ? json_encode($data) : '');
 		echo $out;
-		if(isset($this->cfg['mode'])){
-			if($this->cfg['mode'] == 'hard'){
-				die();
-			}
+		if($this->istrict()){
+			die();
 		}
 	}
 	
@@ -210,22 +220,26 @@ class KsProxyReverse
 		try {
 			$res = $this->process();
 			if(empty($res)) {
+				if(!$this->istrict()){
+					return null;
+				}
 				$this->sendCode(404);
 				$this->respond(json_encode(array(
 					'error' => array(
 						"message" => "Not found"
 					)
 				)));
-			}
-			if(isset($res['headers'])){
-				$this->sendHeaders($res['headers']);
-			}
-			if(isset($res['data'])){
-				$this->sendCode($res['code']);
-				$this->respond($res['data']);
 			}else{
-				$this->sendCode(500);
-				$this->respond($res['error']);
+				if(isset($res['headers'])){
+					$this->sendHeaders($res['headers']);
+				}
+				if(isset($res['data'])){
+					$this->sendCode($res['code']);
+					$this->respond($res['data']);
+				}else{
+					$this->sendCode(500);
+					$this->respond($res['error']);
+				}
 			}
 		}
 		catch(Exception $e) {
