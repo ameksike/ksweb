@@ -8,7 +8,7 @@
  * @copyright  	Copyright (c) 2020-2050
  * @license    	GPL
  * @version    	1.0
- * @require 	KsURL, KsSec
+ * @require 	KsURL, KsSec, KsLog
  */
 class KsProxyReverse 
 {
@@ -18,25 +18,14 @@ class KsProxyReverse
 	public function __construct(){
 		$this->load('KsURL');
 		$this->load('KsSec');
+		$this->load('KsLog');
+
 		$this->http = new KsURL();
 		$this->sec = new KsSec();
+		$this->log = new KsLog();
+		
 		$this->cfg = array( 'routes' => array() );
 		$this->srv = $_SERVER;
-	}
-
-	/**
-	 * @description generate logs
-	 */
-	public function setLog($target=null){
-		$path = __DIR__ . '/../' . (isset($this->cfg['log']) ? $this->cfg['log'] : 'log/');
-		$name = date("ymd");
-		$data["date"] = date("y-m-d H:i:s");
-		$data["host"] = $this->srv["REMOTE_ADDR"];//  $this->srv["HTTP_HOST"];
-		$data["agent"] = $this->srv["HTTP_USER_AGENT"];
-		$data["method"] = $this->srv["REQUEST_METHOD"];
-		$data["path"] = $this->srv["REQUEST_URI"];
-		$data["target"] =  $target;
-		file_put_contents("$path/$name.log", json_encode($data).',', FILE_APPEND | LOCK_EX);
 	}
 
 	/**
@@ -60,6 +49,7 @@ class KsProxyReverse
 			$this->cfg['security']['secret'] : 
 			'ksike'
 		);
+		$this->log->configure($this->cfg, $this->srv);
 		return $this;
 	}
 
@@ -151,14 +141,14 @@ class KsProxyReverse
 	public function process(){
 		$target = $this->getRoute($_SERVER);
 		if(empty($target)){
-			$this->setLog();
+			$this->log->save();
 			return [];
 		}
 		$headers = $this->http->getRequestHeaders();
 		unset($headers['Content-Length'], $headers['Accept-Encoding']);
 		$target['auth'] = $this->auth($headers);
 		if(!$target['auth']){
-			$this->setLog($target);
+			$this->log->save($target);
 			return [];
 		}
 		if(!$target) return [];
@@ -171,7 +161,7 @@ class KsProxyReverse
 		$target['url'] = $this->getTargetUrl($target);
 		$target['headers'] = $this->getTargetHeaders($target['url'], $headers);
 		$target['query'] = $this->srv['QUERY_STRING'];
-		$this->setLog($target);
+		$this->log->save($target);
 		return $this->http->send($target);
 	}
 
