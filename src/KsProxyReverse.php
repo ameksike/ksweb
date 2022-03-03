@@ -144,14 +144,14 @@ class KsProxyReverse
 	public function process(){
 		$target = $this->getRoute($_SERVER);
 		if(empty($target)){
-			$this->log->save();
+			$this->log->save('', 'ERROR');
 			return [];
 		}
 		$headers = $this->http->getRequestHeaders();
 		unset($headers['Content-Length'], $headers['Accept-Encoding']);
 		$target['auth'] = $this->auth($headers);
 		if(!$target['auth']){
-			$this->log->save($target);
+			$this->log->save($target, 'ERROR');
 			return [];
 		}
 		if(!$target) return [];
@@ -233,9 +233,11 @@ class KsProxyReverse
 					$this->sendCode(500);
 					$this->respond($res['error']);
 				}
+				die();
 			}
 		}
 		catch(Exception $e) {
+			$this->log->save($e->getMessage(), 'ERROR');
 			$this->sendCode(500);
 			$this->respond(json_encode(array(
 				'error' => array(

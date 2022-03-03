@@ -27,9 +27,9 @@ class KsLog
 	/**
 	 * @description generate logs
 	 */
-	public function save($target=null){
+	public function save($target=null, $label='INFOR'){
 		date_default_timezone_set('UTC');
-		$name = date("ymd");
+		$name = $label . '-' . date("ymd");
 		$path = isset($this->cfg['path']) ? $this->cfg['path'] :  __DIR__ . '/../log/';
 		$data["date"] = date("y-m-d H:i:s");
 		$data["host"] = $this->srv["REMOTE_ADDR"];//  $this->srv["HTTP_HOST"];
