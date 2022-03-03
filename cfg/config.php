@@ -1,6 +1,6 @@
 <?php
 //... options
-//$config["mode"] = "flex";  // strict|flex
+$config["mode"] = "flex";  // strict|flex
 
 //... security
 $config["security"]["secret"] = "ewtertw44t34";
@@ -28,5 +28,5 @@ $config["routes"]['/^\/api\/send/i'] = [
 	'method' => 'POST'
 ];
 
-//... 
+//...
 return $config;

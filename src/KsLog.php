@@ -15,6 +15,9 @@ class KsLog
 		$this->cfg = array();
 	}
 
+	/**
+	 * @description configure logs
+	 */
     public function configure($cfg, $srv=null){
         $this->srv = $srv ? $srv : $this->srv;
         $this->cfg = $cfg ? $cfg : $this->cfg;
@@ -24,12 +27,10 @@ class KsLog
 	/**
 	 * @description generate logs
 	 */
-	public function save($target=null){
+	public function save($target=null, $label='INFOR'){
 		date_default_timezone_set('UTC');
-
-		$name = date("ymd");
-		$path = __DIR__ . '/../' . (isset($this->cfg['log']) ? $this->cfg['log'] : 'log/');
-
+		$name = $label . '-' . date("ymd");
+		$path = isset($this->cfg['path']) ? $this->cfg['path'] :  __DIR__ . '/../log/';
 		$data["date"] = date("y-m-d H:i:s");
 		$data["host"] = $this->srv["REMOTE_ADDR"];//  $this->srv["HTTP_HOST"];
 		$data["agent"] = $this->srv["HTTP_USER_AGENT"];
