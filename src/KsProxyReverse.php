@@ -49,7 +49,10 @@ class KsProxyReverse
 			$this->cfg['security']['secret'] : 
 			'ksike'
 		);
-		$this->log->configure($this->cfg, $this->srv);
+		$this->log->configure(
+			isset($this->cfg['log']) ? $this->cfg['log'] : [], 
+			$this->srv
+		);
 		return $this;
 	}
 
