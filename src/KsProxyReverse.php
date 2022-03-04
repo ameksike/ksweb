@@ -65,6 +65,14 @@ class KsProxyReverse
 	}
 	
 	/**
+	 * @description get auth header key
+	 * @return {STRING}
+	 */
+	protected function getAuthHeader() {
+		return !isset($this->cfg['security']['header']) ? 'Auth-Ks' : $this->cfg['security']['header'];
+	}
+	
+	/**
 	 * @description verify security 
 	 * @param {ARRAY} headers
 	 * @return {BOOLEAN}
@@ -75,11 +83,11 @@ class KsProxyReverse
 		}
 		$type = !isset($this->cfg['security']['type']) ? 'token' : $this->cfg['security']['type'];
 		if($type == 'token'){
-			$header = !isset($this->cfg['security']['header']) ? 'Auth-Ks' : $this->cfg['security']['header'];
+			$header = $this->getAuthHeader();
 			if(empty($headers) || !isset($headers[$header])) {
 				return false;
 			}
-			return $this->sec->verify($headers[$header]);
+			return $this->sec->verify($headers[$header]);	
 		}
 		return true;
 	}
@@ -94,7 +102,7 @@ class KsProxyReverse
 		$server = $server ? $server : $this->srv;
 		$url = isset($server['PATH_INFO']) ? $server['PATH_INFO'] : '/';
 		foreach ($routes as $pattern => $route) {
-			$route['method'] = isset($route['method']) ? $route['method'] : 'GET';
+			$route['method'] = isset($route['method']) ? $route['method'] : $server['REQUEST_METHOD'];
 			$route['action'] = isset($route['action']) ? $route['action'] : '/'.$route['method'] . '/';
 			$pattern = isset($route['pattern']) ? $route['pattern'] : $pattern;
 			if(preg_match($pattern, $url) && preg_match($route['action'], $server['REQUEST_METHOD'])){
@@ -148,12 +156,16 @@ class KsProxyReverse
 			return [];
 		}
 		$headers = $this->http->getRequestHeaders();
-		unset($headers['Content-Length'], $headers['Accept-Encoding']);
 		$target['auth'] = $this->auth($headers);
 		if(!$target['auth']){
 			$this->log->save($target, 'ERROR');
 			return [];
 		}
+		unset(
+			$headers['Content-Length'], 
+			$headers['Accept-Encoding'], 
+			$headers[$this->getAuthHeader()]
+		);
 		if(!$target) return [];
 		if(isset($target['data'])){
 			$body = json_decode($this->http->getRequestBody(), true);
