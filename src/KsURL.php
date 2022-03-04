@@ -60,7 +60,7 @@ class KsURL
 	 * @param {ARRAY} param
 	 * @return {ARRAY} { data: ANY; error: ARRAY; code: NUMBER }
 	 */
-	public function send($opt=null){
+	public function send($opt=null, $ssl_verfy=false){
 		try {
 			if(!$opt) return null;
 			$opt = is_string($opt) ? array( 'url' => $opt ) : $opt;
@@ -99,6 +99,7 @@ class KsURL
 			$headers = [];    
 			curl_setopt($curl, CURLOPT_VERBOSE, 1);
 			curl_setopt($curl, CURLOPT_HEADER, 0);
+			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $ssl_verfy);
 			curl_setopt($curl, CURLOPT_HEADERFUNCTION, function($curl, $header) use (&$headers) {
 				$item = explode(':', $header, 2);
 				if (count($item) > 1){
