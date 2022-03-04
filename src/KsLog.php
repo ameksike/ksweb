@@ -35,8 +35,8 @@ class KsLog
 			unset($target['headers']);
 		}
 		$data["date"] = date("y-m-d H:i:s");
-		$data["host"] = $this->srv["REMOTE_ADDR"];//  $this->srv["HTTP_HOST"];
-		$data["agent"] = $this->srv["HTTP_USER_AGENT"];
+		$data["host"] = $this->srv["REMOTE_ADDR"]; // HTTP_HOST
+		$data["agent"] = isset($this->srv["HTTP_USER_AGENT"]) ? $this->srv["HTTP_USER_AGENT"] : 'none';
 		$data["method"] = $this->srv["REQUEST_METHOD"];
 		$data["path"] = $this->srv["REQUEST_URI"];
 		$data["target"] = $target;
