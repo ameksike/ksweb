@@ -20,15 +20,15 @@ $server->configure([
     ],
     "routes" => [
         '/^\//i' => [
-            'url'=>'https://konukos.nat.cu'
+            'url'=>'https://myweb.com'
         ],
         '/\/api\/v2\/.*/i' => [
-            'host' => 'tropipay-dev.herokuapp-1.com',
+            'host' => 'https://jsonplaceholder.typicode.com',
             'scheme'=> 'https',
             'method' => 'POST',
             'action' => '/.*/i',
             'data'=> [
-                "email"=>"tonykssa@gmail.com",
+                "email"=>"myemail@gmail.com",
                 "password"=>"****************"
             ]
         ],
@@ -62,7 +62,7 @@ $res = $ksurl->send([
         "Content-Type: application\/x-www-form-urlencoded",
         "Accept: *\/*"
     ],
-    "url"=>"https://konukos.nat.cu/oauth2/token",
+    "url"=>"https://myweb.com/oauth2/token",
     "data"=>"grant_type=client_credentials&scope=enzona_business_payment+enzona_business_qr",
     "method"=>"POST"
 ]);
