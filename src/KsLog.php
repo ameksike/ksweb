@@ -31,6 +31,9 @@ class KsLog
 		date_default_timezone_set('UTC');
 		$name = $label . '-' . date("ymd");
 		$path = isset($this->cfg['path']) ? $this->cfg['path'] :  __DIR__ . '/../log/';
+		if($target){
+			unset($target['headers']);
+		}
 		$data["date"] = date("y-m-d H:i:s");
 		$data["host"] = $this->srv["REMOTE_ADDR"];//  $this->srv["HTTP_HOST"];
 		$data["agent"] = $this->srv["HTTP_USER_AGENT"];

@@ -164,7 +164,6 @@ class KsProxyReverse
 		unset(
 			$headers['Content-Length'], 
 			$headers['Accept-Encoding'], 
-			$headers['Authorization'], 
 			$headers[$this->getAuthHeader()]
 		);
 		if(!$target) return [];
