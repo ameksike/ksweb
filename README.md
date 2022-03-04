@@ -52,3 +52,18 @@ $server->configure([
 
 $server->start();
 ```
+
+## Create a POST request
+```php
+$ksurl = new KsURL();
+$res = $ksurl->send([
+    "headers"=>[
+        "Authorization: Basic WFhQW8ZZ9CNzZjGVU6TYT4MLKM3CTCTR5YTo0b2pjSlN4bm5maGhEamtFRHU1Vh",
+        "Content-Type: application\/x-www-form-urlencoded",
+        "Accept: *\/*"
+    ],
+    "url"=>"https://konukos.nat.cu/oauth2/token",
+    "data"=>"grant_type=client_credentials&scope=enzona_business_payment+enzona_business_qr",
+    "method"=>"POST"
+]);
+```
