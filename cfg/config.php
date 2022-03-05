@@ -1,6 +1,7 @@
 <?php
 //... options
 $config["mode"] = "flex";  // strict|flex
+$config["log"]['allow'] = ["INFOR", "ERROR", "NAUTH", "NFOUN", "QUERY"]; 
 
 //... security
 $config["security"]["secret"] = "ewtertw44t34";
