@@ -106,6 +106,7 @@ class KsProxyReverse
 			$route['action'] = isset($route['action']) ? $route['action'] : '/'.$route['method'] . '/';
 			$pattern = isset($route['pattern']) ? $route['pattern'] : $pattern;
 			if(preg_match($pattern, $url) && preg_match($route['action'], $server['REQUEST_METHOD'])){
+				$route['path_info'] = $url;
 				return $route;
 			}
 		}
@@ -152,13 +153,13 @@ class KsProxyReverse
 	public function process(){
 		$target = $this->getRoute($_SERVER);
 		if(empty($target)){
-			$this->log->save('', 'ERROR');
+			$this->log->save('', 'NFOUN');
 			return [];
 		}
 		$headers = $this->http->getRequestHeaders();
 		$target['auth'] = $this->auth($headers);
 		if(!$target['auth']){
-			$this->log->save($target, 'ERROR');
+			$this->log->save($target, 'NAUTH');
 			return [];
 		}
 		unset(
@@ -176,7 +177,7 @@ class KsProxyReverse
 		$target['url'] = $this->getTargetUrl($target);
 		$target['headers'] = $this->getTargetHeaders($target['url'], $headers);
 		$target['query'] = $this->srv['QUERY_STRING'];
-		$this->log->save($target);
+		$this->log->save($target, 'QUERY');
 		return $this->http->send($target);
 	}
 
@@ -225,23 +226,22 @@ class KsProxyReverse
 		try {
 			$res = $this->process();
 			if(empty($res)) {
+				$this->log->save($res, '404');
 				if(!$this->istrict()){
 					return null;
 				}
 				$this->sendCode(404);
-				$this->respond(json_encode(array(
-					'error' => array(
-						"message" => "Not found"
-					)
-				)));
+				$this->respond(json_encode(array('error' => array( "message" => "Not found" ) )));
 			}else{
 				if(isset($res['headers'])){
 					$this->sendHeaders($res['headers']);
 				}
 				if(isset($res['data'])){
+					$this->log->save($res, 'INFOR');
 					$this->sendCode($res['code']);
 					$this->respond($res['data']);
 				}else{
+					$this->log->save($res, 'ERROR');
 					$this->sendCode(500);
 					$this->respond($res['error']);
 				}

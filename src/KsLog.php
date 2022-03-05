@@ -23,11 +23,28 @@ class KsLog
         $this->cfg = $cfg ? $cfg : $this->cfg;
         return $this;
     }
-
+	
+	/**
+	 * @description is allow 
+	 * @return {BOOLEAN}
+	 */
+	public function isAllow($name) {
+		if(!$this->cfg) return true;
+		if(!is_array($this->cfg['allow'])) return true;
+		if(!isset($this->cfg['allow'])) return true;
+		return in_array(strtoupper($name), $this->cfg['allow']);
+	}
+	
 	/**
 	 * @description generate logs
+	 * @param {OBJECT} target
+	 * @param {STRING} label
 	 */
 	public function save($target=null, $label='INFOR'){
+		$label = strtoupper($label);
+		if(!$this->isAllow($label)){
+			return null;
+		}
 		date_default_timezone_set('UTC');
 		$name = $label . '-' . date("ymd");
 		$path = isset($this->cfg['path']) ? $this->cfg['path'] :  __DIR__ . '/../log/';
@@ -35,7 +52,7 @@ class KsLog
 			unset($target['headers']);
 		}
 		$data["date"] = date("y-m-d H:i:s");
-		$data["host"] = $this->srv["REMOTE_ADDR"]; // HTTP_HOST
+		$data["host"] = $this->srv["REMOTE_ADDR"]; 
 		$data["agent"] = isset($this->srv["HTTP_USER_AGENT"]) ? $this->srv["HTTP_USER_AGENT"] : 'none';
 		$data["method"] = $this->srv["REQUEST_METHOD"];
 		$data["path"] = $this->srv["REQUEST_URI"];
